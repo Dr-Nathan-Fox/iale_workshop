@@ -9,11 +9,85 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-Now lets look at some more advanced methods - if you havent been able to follow along, we can create a break out room with one of us to help you go back over the basics, so please let us know!
+Now lets look at some more advanced methods - if you haven't been able to follow along, we can create a break out room with one of us to help you go back over the basics, so please let us know!
 
 ## Computer vision
 
-PLease note that these methods require a new API key 
+Computer vision is a machine learning approach to assessing what is in a photograph. These methods are particularly important for large data sets that it would not be possible to assess manually. It is possible to build your own machine learning model to assess images, but that is out of the scope of this introductory workshop, so instead we will take a look at a pre-made model. The Google Vision Cloud API provides a range of functionality, from being able to identifying objects in images, extracting color pallets and even identifying iconic structures or landscapes.
+
+Lets use a photograph of some swans. Putting it into the online version of Google Vision it can segment the image and identify the location of the birds.You can see it has outlined the birds with a green box and is 81% and 78% confident that these are birds.
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/vision_a.PNG)
+It also gives us information about what objects are in the photograph. These are provided in step-wise process, starting with broad objects and narrowing down to components (e.g., starting with tree, then identifying a branch).
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/vision_b.PNG)
+
+Finally, it returns information on the color properties. 
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/vision_c.PNG)
+
+### Running computer vision from R
+
+Please note that these methods require a new API key and a paid Google Vision account so we will not run new analysis l live. But if you are interested in signing up you can check out the Google [website ](https://cloud.google.com/vision).
+
+Lets walk through the process. First, as before lets library the needed R packages. Then you would need to set up r to talk to Google, this is done by saving your Google API and initiating a connection through the `Sys.setenv()` and `gvision_init()` functions.
+
+```{r, eval = FALSE}
+library(pacman)
+p_load("imgrec")
+p_load_gh("ropensci/photosearcher")
+
+#set up gvision
+Sys.setenv(gvision_key = "") #Your Google API Key
+gvision_init()
+
+#search google vision
+results <- get_annotations(images = paste(img_ids$url_l), # image url
+                           features = "label", # request all available features
+                           max_res = 10, # maximum number of results per feature
+                           mode = 'url') # determine image type
+
+#parse results
+temp_file_path <- tempfile(fileext = '.json')
+save_json(results, temp_file_path)
+img_data <- parse_annotations(results)
+
+#df of gvision tags
+gvision_results <- img_data$labels
+write.csv(gvision_results, ".\\data\\hiking_additional.csv")
+```
+
+Next we would search Flickr (or Reddit) for what images we would like to assess. In this example, the aim is to see what people do while hiking. 
+
+```{r, eval = FALSE}
+flickr_vision <- photo_search(text = "hiking",
+                            mindate_taken = "2022-01-01",
+                            maxdate_taken = "2022-01-08")
+```
+
+Then we can use the URL of the images to tell Google to identify its contents. this is done using the `get_annotations()` function. The data returned is in "JSON" format, lets not go into that here, but the section of code labeled "parse results" are a set of functions that help turn the results from JSON into a more friendly data frame that we have previously been dealing with.
+
+```{r, eval = FALSE}
+#search google vision
+results <- get_annotations(images = paste(flickr_vision$url_l), # image url
+                           features = "label", # request all available features
+                           max_res = 10, # maximum number of results per feature
+                           mode = 'url') # determine image type
+
+#parse results
+temp_file_path <- tempfile(fileext = '.json')
+save_json(results, temp_file_path)
+img_data <- parse_annotations(results)
+vision_results <- img_data$labels
+
+#save the outputs
+write.csv(vision_results, ".\\data\\gvision_example.csv")
+```
+
+Lets read what this would have created.
+
+```{r}
+vision_results <- read.csv("~\\code\\iale_workshop\\data\\gvision_example.csv")
+
+head(vision_results)
+```
 
 ## Text sentiment
 
@@ -24,6 +98,8 @@ library(pacman)
 p_load("tidytext",
        "textdata",
        "dplyr")
+
+p_load_gh("ropensci/photosearcher")
 ```
 
 The most basic textual sentiment analysis is performed by comparing words to a pre-defined dictionary. These dictionaries have been created by other researchers who manually attributed a value to the sentiment of individual word. Today we will look at three dictionaries AFINN, bing and ncr. 
@@ -53,8 +129,6 @@ You may have noticed, not only do these dictionaries have different methods of m
 Lets get some Flickr data.
 
 ```{r}
-p_load_gh("ropensci/photosearcher")
-
 flickr_text <- photo_search(text = "mountain",
                             mindate_taken = "2022-01-01",
                             maxdate_taken = "2022-01-08")
@@ -108,3 +182,5 @@ afinn <- flickr_text %>% #select our data
 
 head(afinn)
 ```
+
+And there we have it, a summaries of the expressed sentiment for each photograph uploaded of a mountain in the first week of January. We can combine this with the spatial element or combine it with the image contents to assess the drivers of these sentiments. 
