@@ -1,0 +1,82 @@
+---
+title: "Introduction"
+author: "Nathan Fox"
+date: "30/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = T)
+```
+
+## Introduction
+The aims of this workshop are to empower non-, and beginner to intermediate, coders in accessing data from social media websites for use in landscape scale studies. To demonstrate the use of these data sets we will focus on two main lines of inquiry, species distributions and ecosystem services. By the end of today's workshop we hope that you will feel confident in accessing data sets from Flickr and Reddit and would be able to apply analytic methods to these data sets to meet your own research goals. If there is time at the end we will also demonstrate how to download data from Twitter, although we won't fully be able to cover in the workshop as it will takes a long time for each individual to get approval from Twitter for accessing their data.
+
+To make sure that everyone is at around the same level of knowledge going into the workshop we will briefly go over the basics of R and how to use R studio. This introduction is by no means an in depth guide into the workings of R, so if you are interested in learning more please ask and I can provide links to some really useful introductory guides after the workshop. For those familiar with R, we appreciate your patients while we briefly cover these introductory topics. The basics covered here will be suitable for learning how to download, manipulate, analyze, plot and export data from social media. 
+
+Throughout this workshop we encourage you to practice along with us. You can run the code directly from this document if you have it downloaded and opened in R studio, or you can copy the code from here into the console. To run the code from the RMD press the little play button in the top right of each code box, or highlight the code and press ctrl + enter. 
+
+In the following document the r code appears on the first line (gray filled boxes) and where executed the results are printed on the next line (white filled boxes), for example the code 1 + 1 is run and provides the output of 2:
+
+```{r}
+1 + 1
+```
+
+## R basics 
+
+The base R software you downloaded provides a range of functions, primarily for statistical analysis. Functions are words followed by brackets e.g. `mean()`, in which the function is applied to the contents of the brackets. Functions  have named arguments e.g. in `round(x, digits = 0)`, "x" represents the number (or numbers) to be rounded and `"digits = 0"` can be edited to change the number of digits to round to. Some basic examples to try are:
+
+```{r}
+#Finding the mean
+mean(c(1, 100, 201)) #*NB the c() combines all arguments in the brackets into a single vector
+
+#Rounding a number
+round(36.236742384978, digits = 4)
+
+#t-tests
+t.test(c(2, 2, 2, 5, 5, 5, 5, 9, 9, 9), #group 1
+       c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10) #group 2
+       )
+
+#Chi-squared tests
+chisq.test(c(2, 2, 2, 5, 5, 5, 5, 9, 9, 9), #group 1
+           c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10) #group 2
+       )
+```
+
+As shown above, when functions are run the outputs are just printed and not stored, meaning they cannot be used for additional functions. To enable this this we need to save the outputs of the function as an object. This is achieved by assigning the out puts to an object using either `<-` or `=`. Here, the outputs of `1 + 1` are saved as an object called `first_object`. This can then be used in future functions.
+
+```{r}
+first_object <- 1 + 1
+
+first_object #*NB when saved to an object the results are not automatically printed, here we are calling on R to print the outputs
+
+10 / first_object #here the number 10 is divided by out stored value of 2
+```
+
+The final basic part of R we will introduce is data frames. In essence these are tables that can have column names, row names, and cells populated with data. Here, we will make a hypothetical data frame using the heading names "location" and "count", representing different sites and counts of a species. From here we can then use the data in the data frame for additional analysis. Named columns can be called upon using the dollar sign symbol, e.g. `tutorial_dataframe$count`, will call for just that specific column called count. Specific rows and columns can also be called upon by using square brackets `[1,1]` after the data frame name, with row numbers to the left of the comma and column numbers to the right. We can also apply other functions to data stored in data frames. There are much more advanced manipulations that can be carried out, but these simple calls will be enough for today's workshop.
+
+```{r}
+tutorial_dataframe <- data.frame(location = c(1:5), #NB the 1:5 will populate the table with 1,2,3,4,5
+                                 count = c(1,21,20,13,12))
+
+tutorial_dataframe #call for whole df
+
+tutorial_dataframe[1,] #call for specific row (row 1)
+
+tutorial_dataframe[, 2] #call for specific column (column 2)
+
+tutorial_dataframe$count #call for specific column (note same results as using[,2])
+
+tutorial_dataframe[1,2] #call for specific cell (row 1, column 2)
+
+colMeans(tutorial_dataframe) #here we calculate the mean for each column
+```
+
+It is also possible to read in data frames from other sources, such as .csv files. For this example, you should have the 'example_data.csv' file stored in the 'data' folder. To read this file in we need to tell R the type of file it is reading and where the file can be found. First, we can use the `read.csv()` function to tell R ro read in a csv. Second, we put the location of the data inside the function, here this would be ".//data//example_data.csv". In this pathway the "." tell R to look in your current working directory (the folder your work is automatically set to read), the "//data" tell R then the look in the data folder, and finally the "//example_data.csv" tells R to find the file in that folder called "example_data.csv". The example data is a fake survey of ten participants and the activity they are undertaking on a trail. R automatically assigns the columns as a data type, e.g. "Age" is stored as an integer (whole number) and "Activity" as a character type.
+
+```{r}
+read.csv(".//data//example_data.csv")
+```
+
+These functions are available to you without any additional downloads. However, R is a powerful tool for a wide range of analysis including spatial analysis, textual analysis, image content analysis etc. Later in the tuorial we will learn how to download and access additional functions to carry out these types of analysis.

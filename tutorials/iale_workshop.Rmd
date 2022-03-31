@@ -1,0 +1,10 @@
+---
+title: "IALE_Workshop"
+author: "Nathan Fox"
+date: "14/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = T)
+```

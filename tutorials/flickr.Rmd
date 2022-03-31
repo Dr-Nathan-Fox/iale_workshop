@@ -1,0 +1,198 @@
+---
+title: "Flickr"
+author: "Nathan Fox"
+date: "30/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## What is Flickr?
+Flickr is an image and video hosting service with an estimated 90 million monthly users. This include over 75 million registered photographers. These user upload almost 25 million photograph a day. It was created by Ludicorp in 2004, and has changed ownership several times and has been owned by SmugMug since April 20, 2018. 
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/HowmanyFlickrphotos.png)
+Flickr has been used extensively in scientific research. It is a reliable data sourse unlike other photographic social media, which have been largely monetized. 
+
+
+## Lab Instructions
+1. Navigate to the Flickr [website](https://www.flickr.com) and explore the different functionality. Sign up for a free membership (if you don't already have a membership). 
+
+
+2. You need to obtain an API Key as a developer from the developer area of the [website](https://www.flickr.com/services/developer).  
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/FlickrHome.png)
+
+3. We will now access the API, Requests and API key and collect the essential ```Key``` and ```Secret```. 
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Api.png)
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/ApiRequest.png)
+
+
+3a. If you have not logged-in, do so now
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Logon.png)
+
+3b. After requesting an API in the App Garden, choose the Non-commercial version
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/AppGarden.png)
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Commercial.png)
+
+3c. You will need to choose a name for your "app". Please provide details of this in this window
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/NamesIt.png)
+
+3d. Finally collect your key and secret, which we will need to add to our authentication when we request metadata. You might want to save these details in a secrete location for future use (e.g. if it is lost when versions of r are updated or other r configurations).
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Key.png)
+
+## Downloading additional functions
+
+To access code designed for these type of analysis we need to install and library 'R packages'. R packages can be downloaded from several locations. Packages can be officially hosted on the 'CRAN repository', while other packages can be downloaded from sites such as github. The `pacman` package allows for better loading of uninstalled packages. The following code checks to see if `pacman` is already installed, if not R will then download it. Using the `library()` function loads the packages associated code into your current R instance. As a note you will need to re-library packages every time you open up R again.
+
+```{r}
+if(!"pacman" %in% installed.packages()) install.packages("pacman")
+library(pacman)
+```
+
+Now that we have the pacman package installed we can now install all the other packages we need for today's tutorials. First we will install the [`photosearcher package`](https://github.com/ropensci/photosearcher) needed for accessing Flickr data from github.
+
+```{r}
+p_load_gh("ropensci/photosearcher")
+```
+
+## Searching Flickr for photographs
+
+Flickr ios a photograph sharing website. Many of the images on the site are georefferenced, showing the location from which they were taken. Lets take a second to explore Flickr. 
+
+The first time you run any `photosearcher` code it will prompt you to make and enter your unique Flickr API key from the [API website](https://www.flickr.com/services/apps/create/). Entering this into the console will save it as a .sysdata file type that will be then automatically used anytime you run a photosearcher function. If you make a mistake or your key stops working, just delete the .sysdata file and the next time you run a function it will prompt you to enter a new api key.
+
+In the following example we will run a basic search to make sure that everyone is able to run the photosearcher functions correctly. Here, we search for any photograph taken on the 1st of Jan 2022 accompanied by any text that says "landscape".
+
+```{r}
+flickr_photos <- photo_search(mindate_taken = "2022-01-01",
+                              maxdate_taken = "2022-01-02",
+                              text = "landscapes")
+
+head(flickr_photos, 1) #*NB head() is used to show a sample of the data, here we are printing just the first row
+```
+
+We can also open the data frame output by clicking on the object in the Global environments pane of R studio. This lets us inspect all elements in a way that may be more familiar to people that use software like SPSS or excel.
+
+Next we will search for photographs in a given location. A bounding box is a set of coordinates that represent the bottom left and top right of an area. Unfortunately we can't be in Riverside, CA, in person but we can take a look to see what is going on there. The bounding box for the general Riverside area is "-117.829330, 33.738656, -116.786316, 34.168108". We can use this as an argument in the photosearcher R package to find all photographs within that box. Here, we search for any photograph taken in Jan, Feb or March 2022. Please note, if you use the same object name twice, the new output will overwrite the old output.
+
+```{r}
+flickr_photos <- photo_search(mindate_taken = "2022-01-01",
+                              maxdate_taken = "2022-04-01",
+                              bbox = "-117.829330,33.738656,-116.786316,34.168108") 
+
+head(flickr_photos, 1)
+```
+
+The photosearcher R package also allows you to search for an area based on a shape file. In R we are dealing with shape files by reading them in using the `sf` package. Here, we read in a sample shape file called `nc` from the `sf` package. This shape file is made up of 100 different regions. We then use this as an argument in the `photo_search()` function to find all photographs taken within the boundaries of each of the 100 different shapes during the first three months of 2022. You may notice that the outputs have some additional column `within` compared to before. The `within` column represents which of the 100 different boundaries that photograph belongs to.
+
+```{r}
+p_load("sf")
+
+nc <- st_read(system.file("shape/nc.shp", package="sf"))
+
+flickr_photos <- photo_search(mindate_taken = "2022-01-01",
+                              maxdate_taken = "2022-04-01",
+                              sf_layer = nc)
+
+head(flickr_photos, 1)
+```
+
+## Chalenge 1: Searching Flickr for a species.
+
+Now that we have the basics of searching Flickr for photographs we are going to take a quick 10 minute break from presenting and give you a a challenge to complete. We will be here to help if you get stuck though! Your challenge is to choose any species and a location of your choice. Try to think of a combination of species/location that you think will provide an interesting spatial-temporal pattern in the species distributions. Save your search as `species_photos`. Some things to consider:
+
+- Time frame: will your species change over years (declining populations), or over the course of the a single year (e.g. migration)? If so, think about what time range you want to return data for.
+- Charismatic species: will people be taking photographs of your species? Will they be uploading these to share on Flickr?
+- Species name: try to avoid a species that has a name that could bring up erroneous point e.g. "lion" might also return "sea lion" or "dandelion". Perhaps you could use a species Latin name.
+- Location: Do you already have a shape file you could use? Do you need a [bounding box](http://bboxfinder.com/#0.000000,0.000000,0.000000,0.000000)?
+
+Please try to do this challenge if you can as you will good for you to practice the next part of the workshop using your own results - if not, you can just use the search below to get data that we will be demonstrating with.
+
+My example is as follows but please change to whatever you like:
+
+```{r}
+#example - Monarch Butterflies in North America from 2012 -2022
+species_photos <- photo_search(mindate_taken = "2012-01-01",
+                              maxdate_taken = "2022-01-01",
+                              text = "Danaus plexippus",
+                              bbox = "-129.357421,18.367898,-62.604491,45.930388") 
+```
+
+## Spatial and temporal plots 
+To make spatial plots of our species distributions we need to install and load the `ggplot2` package. We will also make sure `sf` is loaded (spatial data package) as well as some packages that provide map data.
+
+```{r}
+p_load("ggplot2",
+       "sf",
+       "rnaturalearth",
+       "rnaturalearthdata",
+       "dplyr")
+```
+
+Making plots with ggplot can be quite complicated so we are just going to go though a couple of stages. First, lets load and plot a base map. The `ggplot()` function allows you to add multiple plots together. First we use the `geom_sf()` function then tells R to plot the world data as a spatial layer. There are many other type of data we could plot if the data was in the correct format, e.g. `geom_bar()` would allow you to plot bar charts and `geom_boxplot()` would allow you plot box plots.
+
+```{r}
+#load base map from rnaturalearth
+world <- ne_countries(scale = "medium", returnclass = "sf") 
+
+ggplot() + 
+    geom_sf(data = world) 
+```
+
+As you can see, the data we are plotting provides an outline for all countries. However, as we are interested in our chosen study site, we need to zoom into the selected region on the map. Here, we take the x and y coordinates from our chosen bounding box and zoom the map into that location using the `coord_sf()` function.
+
+```{r}
+#zoom into the map
+ggplot() + 
+    geom_sf(data = world) +
+    coord_sf(xlim = c(-129.357421, -62.604491), ylim = c(18.367898, 45.930388), expand = FALSE)
+```
+
+Finally, we can add the points to our map. This is achieved though telling R to plot the species_photo object as a points layer. The `aes()` function lets us designate what to plot as x and y. In this case we want out plot to have an x axis value equal to the longitude column in our data frame and the y equal to our latitude column.
+
+```{r}
+#add species data
+ggplot() + 
+    geom_sf(data = world) +
+    coord_sf(xlim = c(-129.357421, -62.604491), ylim = c(18.367898, 45.930388), expand = FALSE)  +
+    geom_point(data = species_photos, aes(x = longitude, y = latitude)) 
+```
+
+Now this map is a bit boring! We can make it a bit more interesting by coloring the points based on the time they were taken. To do this we need to manipulate our data to create a new column that represents the time period we want to categorize our points into. Here, I am going to make two new columns, one for month and one for year. 
+
+We will use a simplistic method to extract the data we want. The `substr()` function can be used to extract parts of a string based on their position. For example, if we use take the word "biggest" and use `substr("biggest", 1, 3)`, the code will extract all letters between and including the first and the third, which would equal "big". In our case we can use this to extract the correct portion of the date as we know it is in the format "2022-01-01" (year-month-day). 
+
+```{r}
+species_photos$year <- substr(species_photos$datetaken, 1, 4) #takes the first four digits (year) from the datetaken column and assigns this as a cell in a new column
+
+head(species_photos$year)
+
+species_photos$month <- substr(species_photos$datetaken, 6, 7) #takes the sixth and seventh digits (month) from the datetaken column and assigns this as a cell in a new column
+
+head(species_photos$month)
+```
+
+We can now use this additional column to color in the points on out map. We do this by adding `colour = month` (or year if you would prefer) to the `aes()` function. The following plot starts to show a good spatial variation across months, with photographs of Monarch Butterflies during the winter month mainly being in the south and during the summer months mainly being in the north. This could be further explored, but we will leave it here for today.
+
+```{r}
+ggplot() + 
+    geom_sf(data = world) +
+    coord_sf(xlim = c(-129.357421, -62.604491), ylim = c(18.367898, 45.930388), expand = FALSE)  +
+    geom_point(data = species_photos, aes(x = longitude, y = latitude, colour = month)) 
+```
+
+Now if we were interested in plotting changes over time without the spatial element it becomes a little bit easier. For example, if we are interested in just plotting the number of sightings over years, we could do this using the `geom_bar()` function, which tells R to plot the species_photos as a bar chart. The `aes(x = year)` tells R to plot our year column as the x axis and `stat = "count"` tells R to plot the y axis as the count of how many times each unique year appears in the column. In our example there appears to be fewer sightings in more recent years. You could also apply this to assessing seasonal variation, or even looking at the exact time of day that sightings occur.
+
+```{r}
+ggplot() +
+  geom_bar(data = species_photos, aes(x = year), stat = "count")
+```
