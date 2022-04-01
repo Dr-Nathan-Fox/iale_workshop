@@ -37,24 +37,9 @@ p_load_gh("ropensci/photosearcher")
 #set up gvision
 Sys.setenv(gvision_key = "") #Your Google API Key
 gvision_init()
-
-#search google vision
-results <- get_annotations(images = paste(img_ids$url_l), # image url
-                           features = "label", # request all available features
-                           max_res = 10, # maximum number of results per feature
-                           mode = 'url') # determine image type
-
-#parse results
-temp_file_path <- tempfile(fileext = '.json')
-save_json(results, temp_file_path)
-img_data <- parse_annotations(results)
-
-#df of gvision tags
-gvision_results <- img_data$labels
-write.csv(gvision_results, ".\\data\\hiking_additional.csv")
 ```
 
-Next we would search Flickr (or Reddit) for what images we would like to assess. In this example, the aim is to see what people do while hiking. 
+Next we would search Flickr (or Reddit) for what images we would like to assess. In this example, the aim is to see what people interact with while hiking. 
 
 ```{r, eval = FALSE}
 flickr_vision <- photo_search(text = "hiking",
@@ -88,6 +73,19 @@ vision_results <- read.csv("~\\code\\iale_workshop\\data\\gvision_example.csv")
 
 head(vision_results)
 ```
+
+We can summarize the results as a frequency. 
+
+```{r}
+vision_summary <- data.frame(table(vision_results$description))
+
+vision_summary <- vision_summary[order(-vision_summary$Freq),]
+
+head(vision_summary)
+
+```
+
+As you can see, a large number of photographs contained the sky. The more interesting summaries we can make though is that a large proportion of our hiking images contain plants, mountains and grass. 
 
 ## Text sentiment
 
