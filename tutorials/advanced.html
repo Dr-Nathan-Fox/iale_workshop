@@ -191,23 +191,8 @@ p_load_gh(&quot;ropensci/photosearcher&quot;)
 
 #set up gvision
 Sys.setenv(gvision_key = &quot;&quot;) #Your Google API Key
-gvision_init()
-
-#search google vision
-results &lt;- get_annotations(images = paste(img_ids$url_l), # image url
-                           features = &quot;label&quot;, # request all available features
-                           max_res = 10, # maximum number of results per feature
-                           mode = &#39;url&#39;) # determine image type
-
-#parse results
-temp_file_path &lt;- tempfile(fileext = &#39;.json&#39;)
-save_json(results, temp_file_path)
-img_data &lt;- parse_annotations(results)
-
-#df of gvision tags
-gvision_results &lt;- img_data$labels
-write.csv(gvision_results, &quot;.\\data\\hiking_additional.csv&quot;)</code></pre>
-<p>Next we would search Flickr (or Reddit) for what images we would like to assess. In this example, the aim is to see what people do while hiking.</p>
+gvision_init()</code></pre>
+<p>Next we would search Flickr (or Reddit) for what images we would like to assess. In this example, the aim is to see what people interact with while hiking.</p>
 <pre class="r"><code>flickr_vision &lt;- photo_search(text = &quot;hiking&quot;,
                             mindate_taken = &quot;2022-01-01&quot;,
                             maxdate_taken = &quot;2022-01-08&quot;)</code></pre>
@@ -244,6 +229,20 @@ head(vision_results)</code></pre>
 ## 4 https://live.staticflickr.com/156/425386055_a5e474de88_b.jpg
 ## 5 https://live.staticflickr.com/156/425386055_a5e474de88_b.jpg
 ## 6 https://live.staticflickr.com/156/425386055_a5e474de88_b.jpg</code></pre>
+<p>We can summarize the results as a frequency.</p>
+<pre class="r"><code>vision_summary &lt;- data.frame(table(vision_results$description))
+
+vision_summary &lt;- vision_summary[order(-vision_summary$Freq),]
+
+head(vision_summary)</code></pre>
+<pre><code>##                  Var1 Freq
+## 780               Sky 3718
+## 605 Natural landscape 3075
+## 213             Cloud 2788
+## 665             Plant 2781
+## 591          Mountain 2436
+## 411             Grass 1644</code></pre>
+<p>As you can see, a large number of photographs contained the sky. The more interesting summaries we can make though is that a large proportion of our hiking images contain plants, mountains and grass.</p>
 </div>
 </div>
 <div id="text-sentiment" class="section level2">
@@ -331,9 +330,9 @@ head(flickr_text$text)</code></pre>
 <pre><code>## [1] &quot;First Light, After tons of contemplating and a four hour boring drive through the desert in the night, I made it to Manzanar on time for the first sunrise of the year 2022. The temperature was below freezing but thanks to the weather gods, it was clear morning. I felt so joyful watching and photographing the peaks glow in red as the first light arrived. \n\nBut not everything is joyful about the place. Manzanar is the site of one of ten American concentration camps, where more than 120,000 Japanese Americans were incarcerated during World War II from March 1942 to November 1945. It is located at the foot of the Sierra Nevada mountains in California&#39;s Owens Valley., manzanar historic sierranevada firstlight sunrise glow mountains mountwilliamson owensvalley memorial japan worldwar landscape winter snow mountainrange morning outdoors travel inyo california usa&quot;
 ## [2] &quot;Schafreuter, New Years Hiking, schafreuter alps bayern austria österreich winter snow mountains sunrise cold hiking walking wandern&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 ## [3] &quot;Schafreuter, New Years Hiking, schafreuter alps bayern austria österreich winter snow mountains sunrise cold hiking walking wandern&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-## [4] &quot;Pizzo dell uomo, i think the pizzo columbe to the left is more exciting but here the mountain with the dark forest in the foreground really shines , mountain snow morning mood berge schweiz schnee switzerland&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
-## [5] &quot;Pizzo de Sole, it was new year&#39;s night. New moon so perfect for taking pictures I waited for sunrise. Just beautiful how the clouds have already been irradiated. , mountain snow morning mood berge schweiz schnee switzerland&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-## [6] &quot;Schafreuter, New Years Hiking, schafreuter alps bayern austria österreich winter snow mountains sunrise cold hiking walking wandern&quot;</code></pre>
+## [4] &quot;Schafreuter, New Years Hiking, schafreuter alps bayern austria österreich winter snow mountains sunrise cold hiking walking wandern&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
+## [5] &quot;Pizzo dell uomo, i think the pizzo columbe to the left is more exciting but here the mountain with the dark forest in the foreground really shines , mountain snow morning mood berge schweiz schnee switzerland&quot;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+## [6] &quot;Pizzo de Sole, it was new year&#39;s night. New moon so perfect for taking pictures I waited for sunrise. Just beautiful how the clouds have already been irradiated. , mountain snow morning mood berge schweiz schnee switzerland&quot;</code></pre>
 <p>Finally, we need to use the AFINN dictionary to assess the sentiment of each word in the new ‘text’ column.</p>
 <p>The easiest way to do this is separate each piece of text into the individual words on a new row.</p>
 <pre class="r"><code>#unnest words - one row per word
@@ -357,10 +356,10 @@ afinn &lt;- flickr_text %&gt;% #select our data
 ##   &lt;chr&gt;                                                                &lt;dbl&gt;
 ## 1 https://live.staticflickr.com/31337/51797354394_c2f774085e_b.jpg        -5
 ## 2 https://live.staticflickr.com/65535/51791073232_b6d116c8e2_b.jpg         2
-## 3 https://live.staticflickr.com/65535/51791096387_ed9d73989c_b.jpg         2
-## 4 https://live.staticflickr.com/65535/51791579541_c0a5c3eca1_b.jpg         3
-## 5 https://live.staticflickr.com/65535/51791879422_820988138a_b.jpg         4
-## 6 https://live.staticflickr.com/65535/51792132413_0f151223e7_b.jpg         2</code></pre>
+## 3 https://live.staticflickr.com/65535/51791579541_c0a5c3eca1_b.jpg         3
+## 4 https://live.staticflickr.com/65535/51791879422_820988138a_b.jpg         4
+## 5 https://live.staticflickr.com/65535/51792305486_b58d6fac45_b.jpg         1
+## 6 https://live.staticflickr.com/65535/51792737097_ca2c686e6c_b.jpg        -3</code></pre>
 <p>And there we have it, a summaries of the expressed sentiment for each photograph uploaded of a mountain in the first week of January. We can combine this with the spatial element or combine it with the image contents to assess the drivers of these sentiments.</p>
 </div>
 </div>
