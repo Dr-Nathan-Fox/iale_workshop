@@ -13,42 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 Flickr is an image and video hosting service with an estimated 90 million monthly users. This include over 75 million registered photographers. These user upload almost 25 million photograph a day. It was created by Ludicorp in 2004, and has changed ownership several times and has been owned by SmugMug since April 20, 2018. 
 
 ![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/HowmanyFlickrphotos.png)
-Flickr has been used extensively in scientific research. It is a reliable data sourse unlike other photographic social media, which have been largely monetized. 
-
-
-## Lab Instructions
-1. Navigate to the Flickr [website](https://www.flickr.com) and explore the different functionality. Sign up for a free membership (if you don't already have a membership). 
-
-
-2. You need to obtain an API Key as a developer from the developer area of the [website](https://www.flickr.com/services/developer).  
-
-![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/FlickrHome.png)
-
-3. We will now access the API, Requests and API key and collect the essential ```Key``` and ```Secret```. 
-
-![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Api.png)
-
-![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/ApiRequest.png)
-
-
-3a. If you have not logged-in, do so now
-
-![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Logon.png)
-
-3b. After requesting an API in the App Garden, choose the Non-commercial version
-
-![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/AppGarden.png)
-
-![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Commercial.png)
-
-3c. You will need to choose a name for your "app". Please provide details of this in this window
-
-![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/NamesIt.png)
-
-3d. Finally collect your key and secret, which we will need to add to our authentication when we request metadata. You might want to save these details in a secrete location for future use (e.g. if it is lost when versions of r are updated or other r configurations).
-
-![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Key.png)
-
 ## Downloading additional functions
 
 To access code designed for these type of analysis we need to install and library 'R packages'. R packages can be downloaded from several locations. Packages can be officially hosted on the 'CRAN repository', while other packages can be downloaded from sites such as github. The `pacman` package allows for better loading of uninstalled packages. The following code checks to see if `pacman` is already installed, if not R will then download it. Using the `library()` function loads the packages associated code into your current R instance. As a note you will need to re-library packages every time you open up R again.
@@ -65,9 +29,6 @@ p_load_gh("ropensci/photosearcher")
 ```
 
 ## Searching Flickr for photographs
-
-Flickr ios a photograph sharing website. Many of the images on the site are georefferenced, showing the location from which they were taken. Lets take a second to explore Flickr. 
-
 The first time you run any `photosearcher` code it will prompt you to make and enter your unique Flickr API key from the [API website](https://www.flickr.com/services/apps/create/). Entering this into the console will save it as a .sysdata file type that will be then automatically used anytime you run a photosearcher function. If you make a mistake or your key stops working, just delete the .sysdata file and the next time you run a function it will prompt you to enter a new api key.
 
 In the following example we will run a basic search to make sure that everyone is able to run the photosearcher functions correctly. Here, we search for any photograph taken on the 1st of Jan 2022 accompanied by any text that says "landscape".
@@ -97,10 +58,11 @@ The photosearcher R package also allows you to search for an area based on a sha
 ```{r}
 p_load("sf")
 
-nc <- st_read(system.file("shape/nc.shp", package="sf"))
+#to speed things up we are just going to take the first 5 shapes
+nc <- st_read(system.file("shape/nc.shp", package="sf"))[5,]
 
-flickr_photos <- photo_search(mindate_taken = "2022-01-01",
-                              maxdate_taken = "2022-04-01",
+flickr_photos <- photo_search(mindate_taken = "2020-01-01",
+                              maxdate_taken = "2022-01-01",
                               sf_layer = nc)
 
 head(flickr_photos, 1)
@@ -108,7 +70,9 @@ head(flickr_photos, 1)
 
 ## Chalenge 1: Searching Flickr for a species.
 
-Now that we have the basics of searching Flickr for photographs we are going to take a quick 10 minute break from presenting and give you a a challenge to complete. We will be here to help if you get stuck though! Your challenge is to choose any species and a location of your choice. Try to think of a combination of species/location that you think will provide an interesting spatial-temporal pattern in the species distributions. Save your search as `species_photos`. Some things to consider:
+Now that we have the basics of searching Flickr for photographs we are going to take a quick 10 minute break from presenting and give you a a challenge to complete. We will be here to help if you get stuck though! Your challenge is to choose any species and a location of your choice. Try to think of a combination of species/location that you think will provide an interesting spatial-temporal pattern in the species distributions. Save your search as `species_photos`. 
+
+Some things to consider:
 
 - Time frame: will your species change over years (declining populations), or over the course of the a single year (e.g. migration)? If so, think about what time range you want to return data for.
 - Charismatic species: will people be taking photographs of your species? Will they be uploading these to share on Flickr?

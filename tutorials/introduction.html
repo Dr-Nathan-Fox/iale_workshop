@@ -178,8 +178,8 @@ pre code {
 <div id="introduction" class="section level2">
 <h2>Introduction</h2>
 <p>The aims of this workshop are to empower non-, and beginner to intermediate, coders in accessing data from social media websites for use in landscape scale studies. To demonstrate the use of these data sets we will focus on two main lines of inquiry, species distributions and ecosystem services. By the end of today’s workshop we hope that you will feel confident in accessing data sets from Flickr and Reddit and would be able to apply analytic methods to these data sets to meet your own research goals. If there is time at the end we will also demonstrate how to download data from Twitter, although we won’t fully be able to cover in the workshop as it will takes a long time for each individual to get approval from Twitter for accessing their data.</p>
-<p>To make sure that everyone is at around the same level of knowledge going into the workshop we will briefly go over the basics of R and how to use R studio. This introduction is by no means an in depth guide into the workings of R, so if you are interested in learning more please ask and I can provide links to some really useful introductory guides after the workshop. For those familiar with R, we appreciate your patients while we briefly cover these introductory topics. The basics covered here will be suitable for learning how to download, manipulate, analyze, plot and export data from social media.</p>
-<p>Throughout this workshop we encourage you to practice along with us. You can run the code directly from this document if you have it downloaded and opened in R studio, or you can copy the code from here into the console. To run the code from the RMD press the little play button in the top right of each code box, or highlight the code and press ctrl + enter.</p>
+<p>To make sure that everyone is at around the same level of knowledge going into the workshop we will briefly go over the basics of R and how to use R studio. This introduction is by no means an in depth guide into the workings of R, so if you are interested in learning more please ask and I can provide links to some really useful introductory guides after the workshop. For those familiar with R, we appreciate your patients while we briefly cover these introductory topics. The basics covered here will be suitable for learning how to download, manipulate, analyze, plot and export data from social media. If members of the group are not comfortable with using R we can create a breakout room and cover the materials there at a reduced pace.</p>
+<p>Throughout this workshop we encourage you to practice along with us. You can run the code directly from this document if you have it downloaded and opened in R studio, or you can copy the code from here into the console. To run the code from the RMD press the little play button in the top right of each code box, or highlight the code and press ctrl + enter (cmd + enter for mac).</p>
 <p>In the following document the r code appears on the first line (gray filled boxes) and where executed the results are printed on the next line (white filled boxes), for example the code 1 + 1 is run and provides the output of 2:</p>
 <pre class="r"><code>1 + 1</code></pre>
 <pre><code>## [1] 2</code></pre>
@@ -250,29 +250,9 @@ tutorial_dataframe #call for whole df</code></pre>
 <pre><code>## location    count 
 ##      3.0     13.4</code></pre>
 <p>It is also possible to read in data frames from other sources, such as .csv files. For this example, you should have the ‘example_data.csv’ file stored in the ‘data’ folder. To read this file in we need to tell R the type of file it is reading and where the file can be found. First, we can use the <code>read.csv()</code> function to tell R ro read in a csv. Second, we put the location of the data inside the function, here this would be “.//data//example_data.csv”. In this pathway the “.” tell R to look in your current working directory (the folder your work is automatically set to read), the “//data” tell R then the look in the data folder, and finally the “//example_data.csv” tells R to find the file in that folder called “example_data.csv”. The example data is a fake survey of ten participants and the activity they are undertaking on a trail. R automatically assigns the columns as a data type, e.g. “Age” is stored as an integer (whole number) and “Activity” as a character type.</p>
-<pre class="r"><code>read.csv(&quot;.//data//example_data.csv&quot;)</code></pre>
-<pre><code>##    ï..Participant Age Activity
-## 1               1  25   Hiking
-## 2               2  65   Hiking
-## 3               3  78   Hiking
-## 4               4  77   Hiking
-## 5               5  43   Hiking
-## 6               6  19   Biking
-## 7               7  21   Hiking
-## 8               8  30   Hiking
-## 9               9  38   Hiking
-## 10             10  20   Biking</code></pre>
-<p>These functions are available to you without any additional downloads. However, R is a powerful tool for a wide range of analysis including spatial analysis, textual analysis, image content analysis etc. To access code designed for these type of analysis we need to install and library ‘R packages’. R packages can be downloaded from several locations. Packages can be officially hosted on the ‘CRAN repository’, while other packages can be downloaded from sites such as github. The <code>pacman</code> package allows for better loading of uninstalled packages. The following code checks to see if <code>pacman</code> is already installed, if not R will then download it. Using the <code>library()</code> function loads the packages associated code into your current R instance. You will need to re-library packages every time you open up R again.</p>
-<pre class="r"><code>if(!&quot;pacman&quot; %in% installed.packages()) install.packages(&quot;pacman&quot;)
-library(pacman)</code></pre>
-<p>Now that we have the pacman package installed we can now install all the other packages we need for today’s tutorials. First we will install the <a href="https://github.com/ropensci/photosearcher"><code>photosearcher package</code></a> needed for accessing Flickr data from github.</p>
-<pre class="r"><code>p_install_gh(&quot;ropensci/photosearcher&quot;)</code></pre>
-<pre><code>## Skipping install of &#39;photosearcher&#39; from a github remote, the SHA1 (7fa94fef) has not changed since last install.
-##   Use `force = TRUE` to force installation</code></pre>
-<pre><code>## 
-## The following packages were installed:
-## photosearcher</code></pre>
-<pre class="r"><code>p_load_gh(&quot;ropensci/photosearcher&quot;)</code></pre>
+<pre class="r"><code>#this code might not work on everyones computers so lets read it in via another method
+read.csv(&quot;./data/example_data.csv&quot;)</code></pre>
+<p>These functions are available to you without any additional downloads. However, R is a powerful tool for a wide range of analysis including spatial analysis, textual analysis, image content analysis etc. Later in the tutorial we will learn how to download and access additional functions to carry out these types of analysis.</p>
 </div>
 
 

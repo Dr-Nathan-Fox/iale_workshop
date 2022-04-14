@@ -1,0 +1,71 @@
+---
+title: "Workshop Preperation"
+author: "Nathan Fox"
+date: "11/04/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Preperation for workshop
+
+Hi all, we are looking forward to you joining us for the Accessible Coding Methods for Gathering Social Media Datasets to Assess Landscapes workshop this Thursday. 
+
+We would like to request that everyone has R and R studio downloaded ahead of time so that we can start in a timely fashion. We are also requesting that everyone applies for a Flickr API key as this can take some time. Though if you are not able to complete either of these task we will be on hand to help you during the workshop. Bellow are the needed steps for both tasks!
+
+Thank you, 
+Nathan 
+
+## Downloading R
+
+Navigate to the R download website either for [windows](https://cran.r-project.org/bin/windows/base/) or for [mac](https://cran.r-project.org/bin/macosx) and navigate to the download best for your computer.
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/R_download.png)
+
+Follow through the install instructions, the default settings should work for this tutorial.
+
+## Download R studio
+
+Using R itself is not the most user friendly introduction to coding, so we are going to code via the R Studio interface. R studio is a GUI designed to make coding in R more simple - in fact I now only ever use R Studio to code and never use just the base R installation. 
+
+Navigate to the R download [website](https://cran.r-project.org/bin/windows/base/) and again find the download best for your computer. Then follow the on-screen instructions to finish the installation. Please note that for some mac users, you may also need to install [xcode](https://developer.apple.com/xcode/).
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/rstudio.png)
+If you're having any issues there is a good [blog post](http://derekogle.com/IFAR/supplements/installations/InstallRStudioWin.html#:~:text=Open%20RStudio.,in%20the%20dialog%20box%20below) that will help you set up R Studio.
+
+## Getting a Flickr API key
+
+1. Navigate to the Flickr [website](https://www.flickr.com) and explore the different functionality. Sign up for a free membership (if you don't already have a membership). 
+
+2. You need to obtain an API Key as a developer from the developer area of the [website](https://www.flickr.com/services/developer).  
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/FlickrHome.png)
+
+3. We will now access the API, Requests and API key and collect the essential ```Key``` and ```Secret```. 
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Api.png)
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/ApiRequest.png)
+
+
+3a. If you have not logged-in, do so now
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Logon.png)
+
+3b. After requesting an API in the App Garden, choose the Non-commercial version
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/AppGarden.png)
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Commercial.png)
+
+3c. You will need to choose a name for your "app". Please provide details of this in this window
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/NamesIt.png)
+
+3d. Finally collect your key and secret, which we will need to add to our authentication when we request metadata. You might want to save these details in a secrete location for future use (e.g. if it is lost when versions of r are updated or other r configurations).
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Key.png)
+
+Again thank you for 

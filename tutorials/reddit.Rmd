@@ -11,16 +11,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## What is Reddit?
 
-Reddit may be unfamiliar to you as a social media website. The main home page of Reddit is an accumulate of the most liked and commented posts from a given time period.
+Reddit may be unfamiliar to you as a social media website. The main home page of Reddit is an accumulation of the most liked and commented posts from a given time period. You can filter and sort by time, or display a feed of what the most recent posts are.
 
 ![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Reddit.png)
 Posts on Reddit are made to specific pages where users can posts about a dedicated topic. This pages are called subreddits. Subreddits exist for a wide range of different topics including [landscape photography](https://www.reddit.com/r/EarthPorn/), [hiking](https://www.reddit.com/r/hiking/). These subreddits have different posting rules, for example some only allows image posts, while others only allow textual posts. Lets take a second to explore Reddit.
 
 First, lets take a look at "r/EarthPorn". Now, don't be fooled by the name EarthPorn is not adult content but a collection of professional quality photographs of landscapes.There is also an armature level equivalent call "r/AmatureEarthPorn".
 ![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/EarthPorn.png)
-EarthPorn has strict criteria for what can be posted.
-![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Rules.png)
-Other subreddits have more relaxed rules and allow posts of all kind, as long as they are on topic.
+EarthPorn has strict criteria for what can be posted. Only landscape images acompanied by the title of the images location are allowed. Other subreddits have more relaxed rules and allow posts of all kind, as long as they are on topic.
 ![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Ecology.png)
 One aspect of Reddit that is advantageous over Flickr, is the discusive nature of comments. The posts can have 
 
@@ -41,11 +39,8 @@ Lets start by searching for posts associated with a specific term. For example, 
 ```{r}
 reddit_data <- reddit_search(search_term = "waterfall",
                              start_date = "2022-01-01",
-                             end_date = "2022-01-08")
-
-#remove over 18 content
-reddit_data <- subset(reddit_data, "over_18" = FALSE)
-
+                             end_date = "2022-01-08") %>% 
+  subset(over_18 == "FALSE") #remove over 18 content
 
 #inspect data
 head(reddit_data)[-1] #the -1 is to hide the authors names
@@ -77,14 +72,14 @@ number <- sample(1:nrow(reddit_data), 1)
 #here we select the URL of the image that we want to download
 file_url <- reddit_data$url[number]
 
-#here we download the file and save it in the outputs folder with the name earthporn.jpg
-download.file(file_url, './/outputs//earthporn.jpg', mode = 'wb') 
+#here we download the file and save it in your current working directory with the name earthporn.jpg
+download.file(file_url, 'earthporn.jpg', mode = 'wb') 
 ```
 
 When downloading images, please check back with the original post to ensure you are not infringing on any copyright or privacy policy. To ensure we aren't doing that we can just delete the photograph for now.
 
 ```{r, eval=FALSE}
-file.remove('.//outputs//earthporn.jpg')
+file.remove('earthporn.jpg')
 ```
 
 It is also possible to search for a specific term within a subreddit. Here, I am going to search for images in EarthPorn with the text, "Wales".
@@ -93,44 +88,60 @@ It is also possible to search for a specific term within a subreddit. Here, I am
 reddit_data <- reddit_search(search_term = "wales",
                              subreddit = "EarthPorn",
                              start_date = "2020-01-01",
-                             end_date = "2022-01-01")
+                             end_date = "2022-01-01") 
 
 
 #inspect data
 head(reddit_data)[-1] 
 ```
 
-## Chalenge 2: Searching Reddit for recreational activity and an environmental feature.
+
+## Challenge 2: Searching Reddit for recreational activity and an environmental feature.
 
 Your next challenge is to search Reddit for posts containing information about a recreational activity and a an environmental feature (e.g., trees, rivers, birds). You can do this two ways, first but searching for two separate search terms at the same time using the `c()` function, e.g., `search_term = c("term1", "term2)`. We can also use the same method as above, searching for a specific term within a subreddit e.g.,  [the hiking subreddit](https://www.reddit.com/r/hiking/. Below I have posted some short examples:
 
-```{r}
+```{r, eval=FALSE}
 reddit_data <- reddit_search(search_term = c("hiking", "trees"),
                              start_date = "2022-01-01",
-                             end_date = "2022-01-02")
+                             end_date = "2022-01-02") %>% 
+  subset(over_18 == "FALSE") #remove over 18 content
+
 
 reddit_data <- reddit_search(search_term = "mountain",
                              subreddit = "fishing",
                              start_date = "2022-01-01",
-                             end_date = "2022-03-01")
+                             end_date = "2022-03-01") %>% 
+  subset(over_18 == "FALSE") #remove over 18 content
+
 
 reddit_data <- reddit_search(search_term = c("lake", "bird"),
                              subreddit = "hiking",
                              start_date = "2021-01-01",
-                             end_date = "2022-01-01")
+                             end_date = "2022-01-01") %>% 
+  subset(over_18 == "FALSE") #remove over 18 content
+
 ```
 
 ## Mapping social interactions
 
 Here we are going to use some functions from the [RedditExtractor](https://github.com/ivan-rivera/RedditExtractor) package. `RedditExtractor` has a function called `get_reddit` which provides similar functionality to the `reddit_search()` we just used from `photosearcher`. The `get_reddit()` function returns data in a slightly different way, which may not be user friendly, however the function has the added ability to specify a minimum number of comments. Using this additional variable we can find posts that have a large number of comments and therefore discussion around landscape or ecological features. Unfortunately, an update to the package got rid of this function so we will have to download an older version to access this feature.  
 
-```{r}
+```{r, eval = FALSE}
+#needed for mac users
+install.packages(c('devtools','curl'),
+                 repos = "http://cran.us.r-project.org") 
+
 require(devtools)
+
 install_version("RedditExtractoR", version = "2.1.5", repos = "http://cran.us.r-project.org")
+```
+
+```{r}
 library("RedditExtractoR")
 ```
 
-Here we use this older code to return posts discussing the grand canyon from EarthPorn with more than 500 comments.
+Here we use this older code to return posts discussing the grand canyon from EarthPorn with more than 500 comments. Feel free to change this to any search that you are interested in!
+
 ```{r}
 reddit_content <- get_reddit(
   search_terms = "Grand Canyon",
@@ -138,13 +149,15 @@ reddit_content <- get_reddit(
   cn_threshold = 500
 )
 ```
+
 Once we have this data stored we can generate network maps of interactions between users.
+
 ```{r}
 #large networks take long to generate so here we take the first 200 comments
-reddit_content2 <- reddit_content[1:200,] 
+reddit_content <- reddit_content[1:500,] 
 
 #extract the information needed for the plot
-user <- user_network(reddit_content2, 
+user <- user_network(reddit_content, 
                      include_author = FALSE, 
                      agg = TRUE)
 
