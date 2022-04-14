@@ -1,0 +1,191 @@
+---
+title: "Twitter"
+author: "Derek Van Berkel"
+date: "12/31/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Twitter
+If we have time we are going to briefly look at Twitter. Like Google Vision, getting access to the API is a timely process so you wont be able to follow along, unless you already have an API key.
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Homepage.png)
+
+1. To  analyze tweets, we are required by most platforms to register to get APIs. This helps them monitor who is doing what. To do this, you will need a twitter account. Sign up or sign into your existing account to start. 
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/TwitterAccount.png)
+
+2. Once you have logged-in navigate back to the developers [page](https://developer.twitter.com/) roll down and choose [solution - Academic-Research](https://developer.twitter.com/en/solutions/academic-research) or other as you wish.
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/DeveloperTwitter.png)
+
+3. Click on **Apply for an account**. 
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Apply.png)
+
+
+4. We now enter the apply for access page. Click on the **Apply for a developer account** bottom. 
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/ApplyDeve.png)
+
+5. Choose the primary reason for using Twitter developer tools. This is up to you, but I used Academic and Student. 
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/Student.png)
+
+6. Fill out the details.
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/detailsAcct.png)
+
+7.Now we fill out some details about how we will use the data. Confirm on the next page that everything looks good!
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/dataUse.png)
+8. Review and Accept the developer aggreement. You should review confirmation shortly.  
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/DeveAgree.png)
+
+9. After you have been confirmed that you have a developer account, we can make an App (This may take a day or two- remember to answer any follow-up questions). Click on the ```Apps``` button in the developers website and in the new window press ```Create an app```. 
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/CreateApp.png)
+
+10. In the ```App details``` fill in a name, description, website url, click Enable. Sign in with Twitter and finally tell how it will be used (the other stuff is not required). 
+
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/AppDetails.png)
+
+11. After it is successfully created. You will able to see the details of your new App. Importantly for us, we will need to collect the ```Consumer API Keys``` and the ```Acess token and Token Secret```. These can be found at the ```Key and tokens``` tab. ```Create``` the tokens and copy both the keys and tokens and paste them in a safe location which you will save for later. So now we are all set to map tweets... well actually there is a rather large amount of coding involved if you go by the developers website. Luckily for us there is an R package that helps us easily query Tweets. 
+
+![](C:/Users/n_fox/Documents/code/iale_workshop/tutorial_figures/ApiDetails.png)
+
+### rtweet
+Is an R function designed to collect and organize Twitter data via Twitter's REST and stream Application Program Interfaces (API), which can be found at the following URL: <https://developer.twitter.com/en/docs>. It allows us to listen to the current stream of Tweets, as well as, query from Twitter's database of Tweets. 
+
+rtweet documentation can be found [here](https://rtweet.info/) and [here](https://cran.r-project.org/web/packages/rtweet/rtweet.pdf).  
+
+
+### Exercise
+1. First we will want to install the appropriate R packages. This probably means using the install.packages() function to grab ```rtweet```,```tidytext```, and ```stringr```. We will also install ```ggspatial```, ```sf``` and ```rnaturalearth```, which are we might demonstrate at the end if we have time.
+
+```{r, results='hide', message = FALSE}
+#possible use an older version if having issue with 
+#Error: lexical error: invalid char in json text. 
+#devtools::install_version("rtweet", version = "0.6.7")
+library(rtweet)
+# plotting and pipes - tidyverse!
+library(ggplot2)
+library(dplyr)
+# text mining library
+library(tidytext)
+library(stringr)
+library(maps)
+library(tidyverse)
+library(ggspatial)
+library(sf)
+library(rnaturalearth)
+```
+
+2. We now have to setup authorization code so that Twitter will allow us to access the data. ```rtweet``` does this using a few lines of code. First we give the details of the App that we made on the developer website. This includes the name of the app and the ```consumer_key```, ```consumer_secret```, ```access_token```, and ```access_secret```. These should remain secret, and I have left these blank for this exercise.    
+
+```{r}
+## Give the name of the App 
+appname <- "Geoscraping"
+
+api_key <- "XXXXXXXXXXX"
+api_secret_key <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+access_token <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+access_token_secret <- "XXXXXXXXXXXXXXXXXXXXXXXXXX"
+```
+
+3. Now we will authenticate our app online with Twitter. This is done by feeding the different keys and passwords into the rtweet authentication.    
+
+```{r}
+## authenticate via web browser
+token <- create_token(
+  app = appname,
+  consumer_key = api_key,
+  consumer_secret = api_secret_key,
+  access_token = access_token,
+  access_secret = access_token_secret)
+```
+
+4. After authentication we can search the Twitter database. This returns a collection of relevant Tweets matching a specified query - ```q```. The search is not exhaustive. Not all Tweets will be indexed or made available via the search interface. The specific query elements included in the rtweet function can be found [here](https://www.rdocumentation.org/packages/rtweet/versions/0.6.9/topics/search_tweets). The ```q``` argument is the `character` query that will be searched. For example, we can search ```q = "climate change"``` to look for Tweets with mentioning the word 'climate' and 'change' (Spaces act as AND). We can also use boolean operators in the search. For example, if we use   ```q = "climate OR change"``` this will expand the serarch to Tweets that mention climate or change. Using single quotes ```q = '"climate change"'``` will return the specific term 'climate change' 
+
+Other important arguments in the function include: 
+```n=10```, which specifies the number of tweets you want returned; 
+```type=```,  you want ```recent```(default), ```popular```, or a mix - ```mixed``` Tweets returned;
+```include_rts``` if you want to include retweets e.g. ```include_rts = TRUE```; and
+```geocode```, which specifies whether a specific geographic area. This is important for us as we want to grab Tweets with their coordinates. Use ```geocode = TRUE``` to map Tweets. 
+
+Let's try to search for Tweets from IALE. We will use the hashtag, and indicate that we only want 5 tweets. 
+```{r}
+IALE_tweets <- search_tweets(q = "#ialeNA2022", n = 5)
+## Here we can see some of the information that is returned from the query
+names(IALE_tweets)
+```
+
+5. As you can see, the data returned is large. Some of the data is interesting including: the tweet ```text```, ```user_id```, ```created_at```, ```screen_name```, ```favorite_count```, ```retweet_count```, and ```geo_coords```. Let's look at this data.   
+
+```{r}
+IALE_tweets$text
+IALE_tweets$user_id
+IALE_tweets$created_at
+IALE_tweets$screen_name
+IALE_tweets$favorite_count
+IALE_tweets$retweet_count
+IALE_tweets$geo_coords
+```
+
+6. Here we see the details of these 5 Tweets. This will change daily as new tweets are added and stored into the database. Not all will have the coordinates. In order to ensure coordinates we can use the ```geocode =``` argument in the function. We have to specify the location of the tweets using coordinates. We specify the geographical limiter using the template "latitude,longitude,radius". Here we use the coordinates of Ann Arbor. You can lookup coordinate using Google maps (which has the same template).  
+
+```{r}
+geo_tweets <- search_tweets("lang:en", geocode = "42.28139,83.74833,100mi", n = 5)
+geo_tweets$geo_coords 
+
+```
+
+7. Unfortunately, there are one or few tweets with a geolocation. Tweeting coordinates is opt-in, and there are few that actually reveal their location. Twitter will supply a feed from the area for all tweeters in that area, but only those who have opted to tweet their coordinates will show up with "geo" info. The coordinates object is only present (non-null) when the Tweet is assigned an exact location. If an exact location is provided, the coordinates object will provide a [long, lat] array with the geographical coordinates, and a Twitter Place that corresponds to that location will be assigned. If you choose to map tweets, using larger areas or the twitter stream for mapping tweets is often a good option. 
+
+```{r}
+geo_tweets <- search_tweets("lang:en", geocode = "42.28,-83.74,100mi", n = 1000)
+```
+
+8. Now that we have increased the sample size, we should have some specific coordinate. To map these we find all the Tweets with coordinates. 
+
+```{r}
+## create lat/lng variables using all available tweet and profile geo-location data
+geo_tweets_coord <- lat_lng(geo_tweets)
+nrow(geo_tweets_coord)
+```
+
+9. Now we plot them using maps 
+```{r}
+## plot state boundaries
+par(mar = c(0, 0, 0, 0))
+maps::map("state", fill = TRUE, col = "#ffffff", 
+  lwd = .25, mar = c(0, 0, 0, 0), 
+xlim = c(-90, -82), y = c(41, 48))
+## plot lat and lng points onto state map
+with(geo_tweets_coord, points(lng, lat, pch = 20, cex = .75, col = rgb(0, .3, .7, .75)))
+```
+
+## Stream tweets
+We can also access the live twitter stream. This include a random sample (approximately 1%) of the entire live stream of all Tweets.
+
+10. Here we just grab all the tweets for 30 seconds and then 10 seconds. 
+```{r, eval=FALSE}
+## random sample for 30 seconds (default)
+live <- stream_tweets(q="")
+nrow(live)
+nrow(stream_tweets("", timeout = 10))
+```
+
+11. As you can see you can control the length of time that you 'listen' to the stream. We can also define a location for where to listen. In this case, we are grabbing Tweets from New Delhi. Strangely, there are tweets that are outside of New Delhi. I have never understood why that is (I don't use Tweets all that much and have not taken the time to figure it out). I suspect this is a geotag by the Tweeter that may not correspond to the defined location. Bonus if you can tell me why.
+
+```{r, eval=FALSE}
+New_Delhi <- stream_tweets(q="",  geocode = "28.61,77.21,100km", timeout = 60)
+
+## Grab the coordinates
+New_Delhi <- lat_lng(New_Delhi)
+```
